@@ -13,6 +13,23 @@ class MyDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
+        children: [
+          Container(
+            padding: EdgeInsets.only(top: 25.0, bottom: 10.0),
+              decoration: new BoxDecoration(
+                  gradient: new LinearGradient(
+                    colors: [Colors.pink, Colors.lightGreenAccent],
+                    begin:  const FractionalOffset(0.0, 0.0),
+                    end: const FractionalOffset(1.0, 0.0),
+                    stops:  [0.0, 1.0],
+                    tileMode: TileMode.clamp
+                  )
+              ),
+            child: Column(
+
+            ),
+          ),
+        ],
 
       ),
     );
