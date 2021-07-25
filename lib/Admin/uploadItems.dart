@@ -19,6 +19,7 @@ class UploadPage extends StatefulWidget
 class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMixin<UploadPage>
 {
   bool get wantKeepAlive => true;
+  File file;
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +91,7 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9.0)),
                 child: Text("Add New Items", style: TextStyle(fontSize: 20.0, color: Colors.white),),
                 color: Colors.green,
-                onPressed: () => {
-                  print("CLICK"),
-                },
+                onPressed: () => takeImage(context),
               ),
             )
           ],
@@ -101,6 +100,55 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
 
     );
 
+  }
+
+  takeImage(mContext)
+  {
+    return showDialog(
+        context: mContext,
+        builder: (con){
+          return SimpleDialog(
+            title: Text("Item Image", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold,),),
+            children: [
+              SimpleDialogOption(
+                child: Text("Capture with Camera", style: TextStyle(color: Colors.green,)),
+                onPressed: capturePhotoWithCamera,
+              ),
+              SimpleDialogOption(
+                child: Text("Select from Gallery", style: TextStyle(color: Colors.green,)),
+                onPressed: pickPhotoFromGallery,
+              ),
+              SimpleDialogOption(
+                child: Text("Cancel", style: TextStyle(color: Colors.green,)),
+                onPressed: ()
+                {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        }
+    );
+  }
+
+  capturePhotoWithCamera() async
+  {
+    Navigator.pop(context);
+    File imageFile = await ImagePicker.pickImage(source: ImageSource.camera, maxHeight: 680.0, maxWidth: 970.0);
+
+    setState(() {
+      file = imageFile;
+    });
+  }
+
+  pickPhotoFromGallery() async
+  {
+    Navigator.pop(context);
+    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      file = imageFile;
+    });
   }
 
 }
