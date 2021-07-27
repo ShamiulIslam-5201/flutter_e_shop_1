@@ -179,7 +179,7 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
         title: Text("New Product", style: TextStyle(color: Colors.white, fontSize: 24.0, fontWeight: FontWeight.bold),),
         actions: [
           FlatButton(
-            onPressed: () => print("clicked"),
+            onPressed: uploading ? null :  () => uploadImageAndSaveItemInfo(),
             child: Text("Add", style:  TextStyle(color: Colors.pink, fontSize: 16.0, fontWeight: FontWeight.bold),),
           )
         ],
@@ -283,6 +283,53 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
       _priceTextEditingController.clear();
       _shortInfoTextEditingController.clear();
       _titleTextEditingController.clear();
+    });
+
+  }
+
+  uploadImageAndSaveItemInfo() async
+  {
+    setState(() {
+      uploading = true;
+    });
+
+    String imageDownloadUrl = await uploadItemImage(file);
+    
+    saveItemInfo(imageDownloadUrl);
+    
+  }
+
+  Future<String> uploadItemImage(mFileImage) async
+  {
+    final StorageReference storageReference = FirebaseStorage.instance.ref().child("Items");
+    StorageUploadTask uploadTask = storageReference.child("product _$productId.jpg").putFile(mFileImage);
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+    return downloadUrl;
+
+  }
+
+  saveItemInfo(String downloadUrl)
+  {
+    final itemsRef = Firestore.instance.collection("items");
+    itemsRef.document(productId).setData({
+      "shortInfo" : _shortInfoTextEditingController.text.trim(),
+      "longDescription" : _descriptionTextEditingController.text.trim(),
+      "price" : _priceTextEditingController.text.trim(),
+      "publishedDate" : DateTime.now(),
+      "status" : "available",
+      "thumbnailUrl" : downloadUrl,
+      "title" : _titleTextEditingController.text.trim(),
+    });
+
+    setState(() {
+      file = null;
+      uploading = false;
+      productId = DateTime.now().millisecondsSinceEpoch.toString();
+      _descriptionTextEditingController.clear();
+      _titleTextEditingController.clear();
+      _shortInfoTextEditingController.clear();
+      _priceTextEditingController.clear();
     });
 
   }
