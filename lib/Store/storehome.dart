@@ -68,6 +68,7 @@ class _StoreHomeState extends State<StoreHome> {
                       Positioned(
                         top: 3.0,
                         bottom: 4.0,
+                        left: 4.0,
                         child: Consumer<CartItemCounter>(
                           builder: (context, counter, _){
                             return Text(
@@ -88,9 +89,11 @@ class _StoreHomeState extends State<StoreHome> {
             ),
           ],
         ),
-        drawer: MyDrawer(
-
-
+        drawer: MyDrawer(),
+        body: CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(pinned: true, delegate: SearchBoxDelegate())
+          ],
         ),
       ),
     );
