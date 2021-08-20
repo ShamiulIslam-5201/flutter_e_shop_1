@@ -92,7 +92,26 @@ class _StoreHomeState extends State<StoreHome> {
         drawer: MyDrawer(),
         body: CustomScrollView(
           slivers: [
-            SliverPersistentHeader(pinned: true, delegate: SearchBoxDelegate())
+            SliverPersistentHeader(pinned: true, delegate: SearchBoxDelegate()),
+            StreamBuilder<QuerySnapshot> (
+              stream: Firestore.instance.collection("items").limit(15).orderBy("publishedDate", descending: true).snapshots(),
+              builder: (context, dataSnapshot)
+              {
+                return !dataSnapshot.hasData
+                    ? SliverToBoxAdapter(child: Center(child: CircularProgressIndicator(),),)
+                    : SliverStaggeredGrid.countBuilder(
+                          crossAxisCount: 1,
+                          staggeredTileBuilder: (c) => StaggeredTile.fit(1),
+                          itemBuilder: (context, index){
+                            ItemModel model = ItemModel.fromJson(dataSnapshot.data.documents[index].data);
+                            return sourceInfo(model, context);
+                        },
+
+                  itemCount: dataSnapshot.data.documents.length,
+
+                );
+              }
+            )
           ],
         ),
       ),
@@ -104,7 +123,148 @@ class _StoreHomeState extends State<StoreHome> {
 
 Widget sourceInfo(ItemModel model, BuildContext context,
     {Color background, removeCartFunction}) {
-  return InkWell();
+  return InkWell(
+    splashColor: Colors.pink,
+    child: Padding(
+      padding: EdgeInsets.all(6.0),
+      child: Container(
+        height: 190.0,
+        width: width,
+        child: Row(
+          children: [
+            Image.network(model.thumbnailUrl, width: 140.0, height: 140.0,),
+            SizedBox(
+              width: 4.0,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 15.0,),
+                  Container(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: Text(model.title, style: TextStyle(color: Colors.black, fontSize: 14.0),),
+                        )
+                      ],
+
+                    ),
+                  ),
+                  SizedBox(height: 5.0,),
+
+                  Container(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: Text(model.shortInfo, style: TextStyle(color: Colors.black54, fontSize: 12.0),),
+                        )
+                      ],
+
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Colors.pink
+                        ),
+                        alignment: Alignment.topLeft,
+                        width: 40.0,
+                        height: 43.0,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "50.0%", style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 15.0 ),
+                              ),
+                              Text(
+                                "OFF", style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 12.0 ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.0,),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 0.0),
+                            child: Row(
+                              children: [
+                                Text(
+                                  r"Original Price : $",
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    color: Colors.grey,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+
+                                Text(
+                                    (model.price + model.price).toString(),
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.grey,
+                                      decoration: TextDecoration.lineThrough,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+
+                          Padding(
+                            padding: EdgeInsets.only(top: 5.0),
+                            child: Row(
+                              children: [
+                                Text(
+                                  r"New Price : ",
+                                  style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.grey
+                                  ),
+                                ),
+
+                                Text(
+                                  "€", style: TextStyle(color: Colors.red, fontSize: 16.0),
+                                ),
+
+                                Text(
+                                  (model.price).toString(),
+                                  style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.grey
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+
+                  Flexible(
+                    child: Container(),
+                  )
+
+                //  to implement cart item remove feature
+
+
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 
